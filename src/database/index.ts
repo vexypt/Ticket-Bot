@@ -1,12 +1,8 @@
-import { QuickDB } from "quick.db";
-import { GuildData } from "./interfaces/GuildData.js";
-import { MemberData } from "./interfaces/MemberData.js";
+import { JsonDatabase } from "wio.db";
+import { GuildData } from "./interfaces/guildData.js";
 
-const filePath = rootTo("localdb.sqlite");
-
-const db = {
-    guilds: new QuickDB<GuildData>({ filePath, table: "guilds" }),
-    members: new QuickDB<MemberData>({ filePath, table: "members" })
-};
+const db = new JsonDatabase<GuildData>({
+    databasePath: "ticketConfig.json"
+});
 
 export { db };
