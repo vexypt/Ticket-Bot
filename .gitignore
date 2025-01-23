@@ -10,6 +10,7 @@
 /.env.dev
 /.env.development
 /package-lock.json
+ticketConfig.json
 
 # Config files
 /firebase.json
