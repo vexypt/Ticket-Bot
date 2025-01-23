@@ -2,7 +2,7 @@ import { settings } from "#settings";
 import { brBuilder, createEmbed, createRow } from "@magicyan/discord";
 import { ButtonBuilder, ButtonStyle, Interaction, type InteractionReplyOptions } from "discord.js"
 
-export async function Panel<R>(interaction: Interaction): Promise<R> {
+export function Panel<R>(interaction: Interaction): R {
     
     const embedConfig = createEmbed({
         color: settings.colors.azoxo,

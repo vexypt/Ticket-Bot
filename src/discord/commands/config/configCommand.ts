@@ -59,7 +59,7 @@ createCommand({
             }
             case "panel": {
                 const channel = options.getChannel("channel", true) as TextChannel;
-                channel.send(await menus.ticket.MainPanel(interaction)).then(() => {
+                channel.send(menus.ticket.MainPanel(interaction)).then(() => {
                     interaction.reply({
                         content: "Painel enviado com sucesso!",
                         flags: ["Ephemeral"]
