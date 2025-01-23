@@ -1,11 +1,11 @@
 import { createCommand } from "#base";
 import { menus } from "#menus";
-import { ApplicationCommandOptionType, ApplicationCommandType, PermissionFlagsBits } from "discord.js";
+import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, PermissionFlagsBits, TextChannel } from "discord.js";
 
 createCommand({
-    name: "config",
+    name: "ticket",
     nameLocalizations: {
-        "pt-BR": "configurar"
+        "pt-BR": "ticket"
     },
     description: "Config module",
     options: [
@@ -19,6 +19,32 @@ createCommand({
                 "pt-BR": "Configura as permissões do ticket"
             },
             type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
+            name: "panel",
+            nameLocalizations: {
+                "pt-BR": "painel"
+            },
+            description: "Send the ticket panel",
+            descriptionLocalizations: {
+                "pt-BR": "Envia o painel de tickets"
+            },
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: "channel",
+                    nameLocalizations: {
+                        "pt-BR": "canal"
+                    },
+                    description: "The channel to send the panel",
+                    descriptionLocalizations: {
+                        "pt-BR": "O canal para enviar o painel"
+                    },
+                    type: ApplicationCommandOptionType.Channel,
+                    channelTypes: [ChannelType.GuildText],
+                    required: true
+                }
+            ]
         }
     ],
     defaultMemberPermissions: [PermissionFlagsBits.Administrator],
@@ -29,6 +55,16 @@ createCommand({
         switch (options.getSubcommand(true)) {
             case "permissions": {
                 interaction.reply(await menus.configPermissions(client, guildId));
+                return;
+            }
+            case "panel": {
+                const channel = options.getChannel("channel", true) as TextChannel;
+                channel.send(await menus.ticket.MainPanel(interaction)).then(() => {
+                    interaction.reply({
+                        content: "Painel enviado com sucesso!",
+                        flags: ["Ephemeral"]
+                    });
+                })
                 return;
             }
         }
