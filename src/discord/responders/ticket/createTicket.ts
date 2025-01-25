@@ -69,6 +69,7 @@ createResponder({
                         PermissionFlagsBits.ReadMessageHistory,
                         PermissionFlagsBits.AttachFiles,
                         PermissionFlagsBits.EmbedLinks,
+                        PermissionFlagsBits.SendMessages,
                     ]
                 },
             ]
