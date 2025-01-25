@@ -21,6 +21,17 @@ createCommand({
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
+            name: "categorys",
+            nameLocalizations: {
+                "pt-BR": "categorias"
+            },
+            description: "Config the ticket categorys",
+            descriptionLocalizations: {
+                "pt-BR": "Configura as categorias do ticket"
+            },
+            type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
             name: "panel",
             nameLocalizations: {
                 "pt-BR": "painel"
@@ -54,7 +65,11 @@ createCommand({
         
         switch (options.getSubcommand(true)) {
             case "permissions": {
-                interaction.reply(await menus.configPermissions(client, guildId));
+                interaction.reply(await menus.config.permissions(client, guildId));
+                return;
+            }
+            case "categorys": {
+                interaction.reply(await menus.config.categorys(client, guildId));
                 return;
             }
             case "panel": {
