@@ -45,9 +45,37 @@ createResponder({
     
                             return;
                         }
-                        case "removeUser":
-                            // Remover usuário
-                            break;
+                        case "removeUser": {
+                            const ticketChannel = interaction.channel;
+                            if(!ticketChannel) {
+                                interaction.reply({
+                                    content: "Este canal não é um canal de ticket válido",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+    
+                            const ticketData = ticketDb.get(`tickets.${ticketChannel.id}`);
+                            if(!ticketData) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar os dados do ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+    
+                            const currentUsers = ticketData.users ? [...ticketData.users] : [];
+    
+                            // Incluindo os usuários com o cargo de staff
+                            const staffRoleId = guildId && guildDb.get(`guilds.${guildId}`)?.staffRole;
+                            const staffMembers = staffRoleId ? guild?.roles.cache.get(staffRoleId)?.members.map(member => member.id) ?? [] : [];
+                            const allUsers = Array.from(new Set([...currentUsers, ...staffMembers]));
+    
+                            await interaction.deferUpdate();
+                            await interaction.followUp(menus.ticket.secondaryPanel.removeUser(allUsers));
+    
+                            return;
+                        }
                         case "NotfUser":
                             // Notificar usuário
                             break;
@@ -130,6 +158,73 @@ createResponder({
                                 });
 
                                 await interaction.update(menus.ticket.secondaryPanel.addUser(allUsers));
+                            }
+                            return;
+                        }
+                        case "removeUser": {
+                            if(interaction.isUserSelectMenu()) {
+
+                                const ticketChannel = interaction.channel as TextChannel;
+                                if(!ticketChannel) {
+                                    interaction.reply({
+                                        content: "Este canal não é um canal de ticket válido",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+
+                                // Obter os dados do ticket
+                                const ticketData = ticketDb.get(`tickets.${ticketChannel.id}`);
+                                if(!ticketData) {
+                                    interaction.reply({
+                                        content: "Não foi possível encontrar os dados do ticket.",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+
+                                // Verificar cargos da staff
+                                const staffRoleId = guildId && guildDb.get(`guilds.${guildId}`)?.staffRole;
+                                const staffMembers = staffRoleId ? guild?.roles.cache.get(staffRoleId)?.members.map(member => member.id) ?? [] : [];
+
+                                // Adicionando o usuário selecionado ao ticket
+                                const userIdToRemove = selected;
+                                if (staffMembers.includes(userIdToRemove)) {
+                                    interaction.reply({
+                                        content: "Você não pode remover um membro da equipe do ticket.",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+                                
+                                if(!ticketData.users || !ticketData.users.includes(userIdToRemove)) {
+                                    interaction.reply({
+                                        content: "Este usuário não está no ticket.",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+
+                                // Atualizar a lista de usuários do ticket
+                                const updatedUsers = ticketData.users.filter(userId => userId !== userIdToRemove);
+                                ticketDb.set(`tickets.${ticketChannel.id}`, {
+                                    ...ticketData,
+                                    users: updatedUsers,
+                                });
+
+                                // Carregar todos os usuarios
+                                const allUsers = Array.from(new Set([...updatedUsers, ...staffMembers]));
+
+                                // Editar as permissões do canal
+                                await ticketChannel.permissionOverwrites.edit(userIdToRemove, {
+                                    ViewChannel: false,
+                                    ReadMessageHistory: false,
+                                    AttachFiles: false,
+                                    EmbedLinks: false,
+                                    SendMessages: false,
+                                });
+
+                                await interaction.update(menus.ticket.secondaryPanel.removeUser(allUsers));
                             }
                             return;
                         }
