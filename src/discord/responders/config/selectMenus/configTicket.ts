@@ -33,7 +33,7 @@ createResponder({
                     db.set(`guilds.${guildId}`, { ...currentConfig, supportCategoryId: selected });
 
                     // Atualiza o menu de permissões após configurar
-                    await interaction.update(await menus.config.permissions(client, guildId));
+                    await interaction.update(await menus.config.categorys(client, guildId));
                 }
                 return;
             }
@@ -47,7 +47,7 @@ createResponder({
                     db.set(`guilds.${guildId}`, { ...currentConfig, budgetCategoryId: selected });
 
                     // Atualiza o menu de permissões após configurar
-                    await interaction.update(await menus.config.permissions(client, guildId));
+                    await interaction.update(await menus.config.categorys(client, guildId));
                 }
                 return;
             }
