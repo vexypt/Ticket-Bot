@@ -1,16 +1,6 @@
 {
     "tickets": {
-        "1332781460549009529": {
-            "type": "support",
-            "createdBy": "629734543867379732",
-            "users": [
-                "629734543867379732"
-            ],
-            "priorityLevel": 0,
-            "closed": false,
-            "assumedBy": null
-        },
-        "1332781474688139317": {
+        "1332790512574267402": {
             "type": "budget",
             "createdBy": "629734543867379732",
             "users": [
