@@ -1,4 +1,5 @@
 import { createCommand } from "#base";
+import { guildDb } from "#database";
 import { menus } from "#menus";
 import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, PermissionFlagsBits, TextChannel } from "discord.js";
 
@@ -74,6 +75,23 @@ createCommand({
             }
             case "panel": {
                 const channel = options.getChannel("channel", true) as TextChannel;
+
+                // Verifica as configurações necessárias
+                const guildConfig = guildDb.get(`guilds.${guildId}`);
+                if
+                (
+                    !guildConfig ||
+                    !guildConfig.supportCategoryId ||
+                    !guildConfig.budgetCategoryId ||
+                    !guildConfig.staffRole
+                ) {
+                    await interaction.reply({
+                        content: "Sistema de ticket ainda não configurado, por favor verifique se está tudo configurado corretamente.",
+                        flags: ["Ephemeral"]
+                    });
+                    return;
+                }
+
                 channel.send(menus.ticket.MainPanel(interaction)).then(() => {
                     interaction.reply({
                         content: "Painel enviado com sucesso!",

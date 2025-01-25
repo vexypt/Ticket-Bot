@@ -1,5 +1,5 @@
 import { createResponder, ResponderType } from "#base";
-import { db } from "#database";
+import { guildDb } from "#database";
 import { menus } from "#menus";
 
 createResponder({
@@ -15,8 +15,8 @@ createResponder({
                     const [selected] = interaction.values;
 
                     // Recupera os dados atuais e atualiza apenas o staffRole
-                    const currentConfig = db.get(`guilds.${guildId}`) || {};
-                    db.set(`guilds.${guildId}`, { ...currentConfig, staffRole: selected });
+                    const currentConfig = guildDb.get(`guilds.${guildId}`) || {};
+                    guildDb.set(`guilds.${guildId}`, { ...currentConfig, staffRole: selected });
 
                     // Atualiza o menu de permissões após configurar
                     await interaction.update(await menus.config.permissions(client, guildId));
@@ -29,8 +29,8 @@ createResponder({
                     const [selected] = interaction.values;
 
                     // Recupera os dados atuais e atualiza apenas o supportCategoryId
-                    const currentConfig = db.get(`guilds.${guildId}`) || {};
-                    db.set(`guilds.${guildId}`, { ...currentConfig, supportCategoryId: selected });
+                    const currentConfig = guildDb.get(`guilds.${guildId}`) || {};
+                    guildDb.set(`guilds.${guildId}`, { ...currentConfig, supportCategoryId: selected });
 
                     // Atualiza o menu de permissões após configurar
                     await interaction.update(await menus.config.categorys(client, guildId));
@@ -43,8 +43,8 @@ createResponder({
                     const [selected] = interaction.values;
 
                     // Recupera os dados atuais e atualiza apenas o budgetCategoryId
-                    const currentConfig = db.get(`guilds.${guildId}`) || {};
-                    db.set(`guilds.${guildId}`, { ...currentConfig, budgetCategoryId: selected });
+                    const currentConfig = guildDb.get(`guilds.${guildId}`) || {};
+                    guildDb.set(`guilds.${guildId}`, { ...currentConfig, budgetCategoryId: selected });
 
                     // Atualiza o menu de permissões após configurar
                     await interaction.update(await menus.config.categorys(client, guildId));

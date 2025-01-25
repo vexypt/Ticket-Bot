@@ -1,14 +1,14 @@
-import { db } from "#database";
+import { guildDb } from "#database";
 import { settings } from "#settings";
 import { createEmbed, createRow } from "@magicyan/discord";
 import { type InteractionReplyOptions, Client, ChannelSelectMenuBuilder, ChannelType } from "discord.js";
 
 export async function configCategoryMenu<R>(client: Client, guildId: string): Promise<R> {
     // Busca as configurações da guilda no banco de dados
-    let guildConfig = db.get(`guilds.${guildId}`);
+    let guildConfig = guildDb.get(`guilds.${guildId}`);
     if (!guildConfig) {
         guildConfig = { supportCategoryId: null, budgetCategoryId: null };
-        db.set(`guilds.${guildId}`, guildConfig);
+        guildDb.set(`guilds.${guildId}`, guildConfig);
     }
 
     const guild = client.guilds.cache.get(guildId);

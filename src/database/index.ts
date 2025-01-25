@@ -1,8 +1,12 @@
 import { JsonDatabase } from "wio.db";
-import { GuildData } from "./interfaces/guildData.js";
+import { GuildData, TicketData } from "./interfaces/guildAndTicketData.js";
 
-const db = new JsonDatabase<GuildData>({
-    databasePath: "ticketConfig.json"
+const guildDb = new JsonDatabase<GuildData>({
+    databasePath: "guildConfig.json",
 });
 
-export { db };
+const ticketDb = new JsonDatabase<TicketData>({
+    databasePath: "ticketData.json",
+});
+
+export { guildDb, ticketDb };

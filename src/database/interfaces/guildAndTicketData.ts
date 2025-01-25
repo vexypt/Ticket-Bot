@@ -6,8 +6,10 @@ export interface GuildData {
 }
 
 export interface TicketData {
+    type?: "support" | "budget";        // Tipo do ticket
+    createdBy?: string;                  // ID do usuário que criou o ticket
     priorityLevel?: number;              // Nível de prioridade (padrão 0)
     closed?: boolean;                    // Indica se o ticket foi fechado
     assumedBy?: string | null;           // ID do usuário que assumiu o ticket
-    participants?: string[];             // Array de IDs dos usuários no ticket
+    users?: string[];             // Array de IDs dos usuários no ticket
 }

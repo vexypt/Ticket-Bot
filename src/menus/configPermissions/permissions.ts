@@ -1,14 +1,14 @@
-import { db } from "#database";
+import { guildDb } from "#database";
 import { settings } from "#settings";
 import { createEmbed, createRow } from "@magicyan/discord";
 import { type InteractionReplyOptions, Client, RoleSelectMenuBuilder } from "discord.js"
 
 export async function configPermissionsMenu<R>(client: Client, guildId: string): Promise<R> {
 
-    let guildConfig = db.get(`guilds.${guildId}`);
+    let guildConfig = guildDb.get(`guilds.${guildId}`);
     if(!guildConfig) {
         guildConfig = { staffRole: null };
-        db.set(`guilds.${guildId}`, guildConfig);
+        guildDb.set(`guilds.${guildId}`, guildConfig);
     }
     const guild = client.guilds.cache.get(guildId);
     const staffRoleId = guildConfig?.staffRole;
