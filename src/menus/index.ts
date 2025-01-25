@@ -1,9 +1,15 @@
-import { configPermissionsMenu } from "./configPermissions/main.js";
+import { configCategoryMenu } from "./configPermissions/categorys.js";
+import { configPermissionsMenu } from "./configPermissions/permissions.js";
 import { Panel } from "./ticketPanel/main.js";
+import { secondaryMenu } from "./ticketPanel/secondary.js";
 
 export const menus = {
-    configPermissions: configPermissionsMenu,
+    config: {
+        permissions: configPermissionsMenu,
+        categorys: configCategoryMenu
+    },
     ticket: {
-        MainPanel: Panel
+        MainPanel: Panel,
+        secondaryMenu: secondaryMenu
     }
 }
