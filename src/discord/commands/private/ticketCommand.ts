@@ -58,7 +58,7 @@ createCommand({
                 interaction.reply(menus.config.main(guildId, client));
                 return;
             }
-            case "panel": {
+            case "send-panel": {
                 const channel = options.getChannel("channel", true) as TextChannel;
 
                 // Verifica as configurações necessárias
@@ -82,7 +82,7 @@ createCommand({
                         content: "Painel enviado com sucesso!",
                         flags: ["Ephemeral"]
                     });
-                })
+                });
                 return;
             }
         }
