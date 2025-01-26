@@ -1,7 +1,7 @@
 import { guildDb } from "#database";
 import { settings } from "#settings";
 import { createEmbed, createRow } from "@magicyan/discord";
-import { type InteractionReplyOptions, Client, RoleSelectMenuBuilder } from "discord.js"
+import { type InteractionReplyOptions, ButtonBuilder, ButtonStyle, Client, RoleSelectMenuBuilder } from "discord.js"
 
 export async function configPermissionsMenu<R>(client: Client, guildId: string): Promise<R> {
 
@@ -30,9 +30,17 @@ export async function configPermissionsMenu<R>(client: Client, guildId: string):
         })
     );
 
+    const row2 = createRow(
+        new ButtonBuilder({
+            customId: "configTicket/menu",
+            label: "Voltar ao menu",
+            style: ButtonStyle.Secondary,
+        })
+    );
+
     return ({
         flags: ["Ephemeral"],
         embeds: [embedConfig],
-        components: [row],
+        components: [row, row2],
     } satisfies InteractionReplyOptions) as R;
 }

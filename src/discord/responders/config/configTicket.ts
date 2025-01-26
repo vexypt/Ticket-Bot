@@ -4,12 +4,32 @@ import { menus } from "#menus";
 
 createResponder({
     customId: "configTicket/:action",
-    types: [ResponderType.RoleSelect, ResponderType.ChannelSelect], // Suporte a seletores de cargo e canal
+    types: [ResponderType.RoleSelect, ResponderType.ChannelSelect, ResponderType.Button], // Suporte a seletores de cargo e canal
     cache: "cached",
     async run(interaction, { action }) {
         const { guildId, client } = interaction;
 
         switch (action) {
+
+            case "menuConfigStaffRole": {
+                if(interaction.isButton()) {
+                    interaction.update(await menus.config.permissions(client, guildId));
+                }
+                return;
+            }
+            case "MenuConfigCategorys": {
+                if(interaction.isButton()) {
+                    interaction.update(await menus.config.categorys(client, guildId));
+                }
+                return;
+            }
+            case "MenuConfigLogChannel": {
+                if(interaction.isButton()) {
+                    // aaaa
+                }
+                return;
+            }
+
             case "configStaffRole": {
                 if (interaction.isRoleSelectMenu()) {
                     const [selected] = interaction.values;
@@ -49,6 +69,11 @@ createResponder({
                     // Atualiza o menu de permissões após configurar
                     await interaction.update(await menus.config.categorys(client, guildId));
                 }
+                return;
+            }
+
+            case "menu": {
+                interaction.update(await menus.config.main(guildId, client));
                 return;
             }
 

@@ -11,31 +11,20 @@ createCommand({
     description: "Config module",
     options: [
         {
-            name: "permissions",
+            name: "config",
             nameLocalizations: {
-                "pt-BR": "permissoes"
+                "pt-BR": "configurar"
             },
-            description: "Config the ticket permissions",
+            description: "Config the ticket",
             descriptionLocalizations: {
-                "pt-BR": "Configura as permissões do ticket"
+                "pt-BR": "Configura o ticket"
             },
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "categorys",
+            name: "send-panel",
             nameLocalizations: {
-                "pt-BR": "categorias"
-            },
-            description: "Config the ticket categorys",
-            descriptionLocalizations: {
-                "pt-BR": "Configura as categorias do ticket"
-            },
-            type: ApplicationCommandOptionType.Subcommand,
-        },
-        {
-            name: "panel",
-            nameLocalizations: {
-                "pt-BR": "painel"
+                "pt-BR": "enviar-painel"
             },
             description: "Send the ticket panel",
             descriptionLocalizations: {
@@ -65,12 +54,8 @@ createCommand({
         const { options, guildId, client } = interaction;
         
         switch (options.getSubcommand(true)) {
-            case "permissions": {
-                interaction.reply(await menus.config.permissions(client, guildId));
-                return;
-            }
-            case "categorys": {
-                interaction.reply(await menus.config.categorys(client, guildId));
+            case "config": {
+                interaction.reply(menus.config.main(guildId, client));
                 return;
             }
             case "panel": {

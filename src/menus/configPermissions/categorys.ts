@@ -1,7 +1,7 @@
 import { guildDb } from "#database";
 import { settings } from "#settings";
 import { createEmbed, createRow } from "@magicyan/discord";
-import { type InteractionReplyOptions, Client, ChannelSelectMenuBuilder, ChannelType } from "discord.js";
+import { type InteractionReplyOptions, Client, ChannelSelectMenuBuilder, ChannelType, ButtonBuilder, ButtonStyle } from "discord.js";
 
 export async function configCategoryMenu<R>(client: Client, guildId: string): Promise<R> {
     // Busca as configurações da guilda no banco de dados
@@ -53,10 +53,18 @@ export async function configCategoryMenu<R>(client: Client, guildId: string): Pr
         })
     );
 
+    const row3 = createRow(
+        new ButtonBuilder({
+            customId: "configTicket/menu",
+            label: "Voltar ao menu",
+            style: ButtonStyle.Secondary,
+        })
+    );
+
     // Retorna a configuração para interação
     return ({
         flags: ["Ephemeral"],
         embeds: [embedConfig],
-        components: [row1, row2],
+        components: [row1, row2, row3],
     } satisfies InteractionReplyOptions) as R;
 }

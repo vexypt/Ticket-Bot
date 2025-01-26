@@ -378,9 +378,10 @@ createResponder({
                             await monitorVoiceChannel(voiceChannel.id, ticketChannel.id, guildId, client);
                             return;
                         }
-                        case "moveChannel":
-                            // Mover canal
-                            break;
+                        case "moveChannel": {
+
+                            return;
+                        }
                         case "defPriority":
                             // Definir prioridade
                             break;
