@@ -7,7 +7,7 @@ import { ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits, TextChann
 
 createResponder({
     customId: "ticketSec/:type/:action",
-    types: [ResponderType.Button, ResponderType.UserSelect], cache: "cached",
+    types: [ResponderType.Button, ResponderType.UserSelect, ResponderType.StringSelect], cache: "cached",
     async run(interaction, { type, action }) {
         
         const { guild, guildId, user, member, client } = interaction;
@@ -244,6 +244,23 @@ createResponder({
                         }
                         case "createCall": {
 
+                            const guildConfig = guildDb.get(`guilds.${guildId}`);
+                            if(!guildConfig) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar as configurações do servidor.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            if(guildConfig.staffRole && !member?.roles.cache.has(guildConfig.staffRole)) {
+                                interaction.reply({
+                                    content: "Você não tem permissão para assumir este ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
                             const ticketChannel = interaction.channel as TextChannel;
                             if(!ticketChannel) {
                                 interaction.reply({
@@ -257,15 +274,6 @@ createResponder({
                             if(!ticketData) {
                                 interaction.reply({
                                     content: "Não foi possível encontrar os dados do ticket.",
-                                    flags: ["Ephemeral"],
-                                });
-                                return;
-                            }
-
-                            const guildConfig = guildDb.get(`guilds.${guildId}`);
-                            if(!guildConfig) {
-                                interaction.reply({
-                                    content: "Não foi possível encontrar as configurações do servidor.",
                                     flags: ["Ephemeral"],
                                 });
                                 return;
@@ -380,21 +388,101 @@ createResponder({
                         }
                         case "moveChannel": {
 
+                            const guildConfig = guildDb.get(`guilds.${guildId}`);
+                            if(!guildConfig) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar as configurações do servidor.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            if(guildConfig.staffRole && !member?.roles.cache.has(guildConfig.staffRole)) {
+                                interaction.reply({
+                                    content: "Você não tem permissão para assumir este ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            const ticketChannel = interaction.channel;
+                            if(!ticketChannel) {
+                                interaction.reply({
+                                    content: "Este canal não é um canal de ticket válido",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+    
+                            const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
+                            if(!ticketData) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar os dados do ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+    
+                            await interaction.deferUpdate();
+                            await interaction.followUp(menus.ticket.secondaryPanel.moveChannel(guildId));
+    
                             return;
                         }
-                        case "defPriority":
+                        case "defPriority": {
+
+                            const guildConfig = guildDb.get(`guilds.${guildId}`);
+                            if(!guildConfig) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar as configurações do servidor.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            if(guildConfig.staffRole && !member?.roles.cache.has(guildConfig.staffRole)) {
+                                interaction.reply({
+                                    content: "Você não tem permissão para assumir este ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            const ticketChannel = interaction.channel;
+                            if(!ticketChannel) {
+                                interaction.reply({
+                                    content: "Este canal não é um canal de ticket válido",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+    
+                            const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
+                            if(!ticketData) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar os dados do ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+    
+                            await interaction.deferUpdate();
+                            await interaction.followUp(menus.ticket.secondaryPanel.choosePriority(guildId));
+    
+                            return;
+                        }
+                        /*case "defPriority":
                             // Definir prioridade
                             break;
                         case "leaveTicket":
                             // Sair ou cancelar
-                            break;
+                            break;*/
                     }
                 }
             }
 
             case "select": {
                 if(interaction.isAnySelectMenu()) {
-                    const { values: [selected] } = interaction;
+                    const { values: [selected], channel } = interaction;
                     switch(action) {
                         case "addUser": {
                             if(interaction.isUserSelectMenu()) {
@@ -519,6 +607,140 @@ createResponder({
                                 });
 
                                 await interaction.update(menus.ticket.secondaryPanel.removeUser(allUsers));
+                            }
+                            return;
+                        }
+                        case "moveChannel": {
+                            if(interaction.isStringSelectMenu()) {
+
+                                const ticketChannel = channel as TextChannel;
+                                if(!ticketChannel) {
+                                    interaction.reply({
+                                        content: "Este canal não é um canal de ticket válido",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+        
+                                const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
+                                if(!ticketData) {
+                                    interaction.reply({
+                                        content: "Não foi possível encontrar os dados do ticket.",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+
+                                const selectedCategoryId = selected;
+                                const selectedCategory = guild?.channels.cache.get(selectedCategoryId);
+
+                                if(!selectedCategory || selectedCategory.type !== ChannelType.GuildCategory) {
+                                    interaction.reply({
+                                        content: "Categoria inválida.",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+
+                                if(ticketChannel.parentId === selectedCategoryId) {
+                                    interaction.reply({
+                                        content: "O canal já está nesta categoria.",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+
+                                try {
+                                    // Move o canal para a categoria selecionada
+                                    await ticketChannel.setParent(selectedCategoryId);
+                                    interaction.reply({
+                                        content: `Canal movido com sucesso!`,
+                                        flags: ["Ephemeral"],
+                                    });
+                                    ticketChannel.send(res.azoxo(`O canal foi movido para a categoria de **${selectedCategory.name}**`));
+                                } catch (error){
+                                    interaction.reply({
+                                        content: "Não foi possível mover o canal.",
+                                        flags: ["Ephemeral"],
+                                    });
+                                }
+                            }
+                            return;
+                        }
+                        case "defPriority": {
+                            if(interaction.isStringSelectMenu()) {
+
+                                const ticketChannel = channel as TextChannel;
+                                if(!ticketChannel) {
+                                    interaction.reply({
+                                        content: "Este canal não é um canal de ticket válido",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+        
+                                const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
+                                if(!ticketData) {
+                                    interaction.reply({
+                                        content: "Não foi possível encontrar os dados do ticket.",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+
+                                const selectedPriority = parseInt(selected, 10);
+                                let priorityEmoji = "";
+                                let priorityLabel = "";
+
+                                switch (selectedPriority) {
+                                    case 3:
+                                        priorityEmoji = "🔴";
+                                        priorityLabel = "Alta";
+                                        break;
+                                    case 2:
+                                        priorityEmoji = "🟠";
+                                        priorityLabel = "Média";
+                                        break;
+                                    case 1:
+                                        priorityEmoji = "🔵";
+                                        priorityLabel = "Baixa";
+                                        break;
+                                }
+
+                                if(ticketData.priorityLevel === selectedPriority) {
+                                    interaction.reply({
+                                        content: `O ticket já está com a prioridade ${priorityEmoji} **${priorityLabel}**`,
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+
+                                const ticketCreatorId = ticketData.createdBy;
+                                if (!ticketCreatorId) {
+                                    interaction.reply({
+                                        content: "Não foi possível identificar o criador do ticket.",
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+                                const ticketCreator = await guild!.members.fetch(ticketCreatorId);
+                                try {
+                                    const newChannelName = `${priorityEmoji}┃${ticketCreator?.user.username}`;
+                                    await channel?.setName(newChannelName);
+                                    ticketDb.set(`tickets.${guildId}.${ticketChannel.id}`, {
+                                        ...ticketData,
+                                        priorityLevel: selectedPriority,
+                                    });
+                                } catch(error) {
+                                    interaction.update({
+                                        content: "Não atualize a prioridade tão rápido!."
+                                    });
+                                }
+
+                                await interaction.reply({
+                                    content: `Prioridade do ticket definida como ${priorityEmoji} **${priorityLabel}**`,
+                                    flags: ["Ephemeral"],
+                                });
                             }
                             return;
                         }

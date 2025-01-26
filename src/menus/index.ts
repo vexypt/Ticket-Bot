@@ -5,6 +5,8 @@ import { configPermissionsMenu } from "./configPermissions/permissions.js";
 import { Panel } from "./ticketPanel/main.js";
 import { secondaryMenu } from "./ticketPanel/secondary.js";
 import { addUserMenu } from "./ticketPanel/secondaryPanel/addUser.js";
+import { choosePriorityMenu } from "./ticketPanel/secondaryPanel/choosePriority.js";
+import { moveChannelMenu } from "./ticketPanel/secondaryPanel/moveChannel.js";
 import { removeUserMenu } from "./ticketPanel/secondaryPanel/removeUser.js";
 
 export const menus = {
@@ -19,7 +21,9 @@ export const menus = {
         secondaryMenu: secondaryMenu,
         secondaryPanel: {
             addUser: addUserMenu,
-            removeUser: removeUserMenu
+            removeUser: removeUserMenu,
+            moveChannel: moveChannelMenu,
+            choosePriority: choosePriorityMenu
         }
     }
 }
