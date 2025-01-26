@@ -1,22 +1,40 @@
 import { createResponder, ResponderType } from "#base";
 import { guildDb, ticketDb } from "#database";
-import { res } from "#functions";
+import { monitorVoiceChannel, res } from "#functions";
 import { menus } from "#menus";
 import { createRow } from "@magicyan/discord";
-import { ButtonBuilder, ButtonStyle, TextChannel } from "discord.js";
+import { ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits, TextChannel } from "discord.js";
 
 createResponder({
     customId: "ticketSec/:type/:action",
     types: [ResponderType.Button, ResponderType.UserSelect], cache: "cached",
     async run(interaction, { type, action }) {
         
-        const { guild, guildId } = interaction;
+        const { guild, guildId, user, member, client } = interaction;
 
         switch (type) {
             case "button": {
                 if (interaction.isButton()) {
                     switch (action) {
                         case "addUser": {
+
+                            const guildConfig = guildDb.get(`guilds.${guildId}`);
+                            if(!guildConfig) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar as configurações do servidor.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            if(guildConfig.staffRole && !member?.roles.cache.has(guildConfig.staffRole)) {
+                                interaction.reply({
+                                    content: "Você não tem permissão para assumir este ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
                             const ticketChannel = interaction.channel;
                             if(!ticketChannel) {
                                 interaction.reply({
@@ -26,7 +44,7 @@ createResponder({
                                 return;
                             }
     
-                            const ticketData = ticketDb.get(`tickets.${ticketChannel.id}`);
+                            const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
                             if(!ticketData) {
                                 interaction.reply({
                                     content: "Não foi possível encontrar os dados do ticket.",
@@ -48,6 +66,24 @@ createResponder({
                             return;
                         }
                         case "removeUser": {
+
+                            const guildConfig = guildDb.get(`guilds.${guildId}`);
+                            if(!guildConfig) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar as configurações do servidor.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            if(guildConfig.staffRole && !member?.roles.cache.has(guildConfig.staffRole)) {
+                                interaction.reply({
+                                    content: "Você não tem permissão para assumir este ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
                             const ticketChannel = interaction.channel;
                             if(!ticketChannel) {
                                 interaction.reply({
@@ -57,7 +93,7 @@ createResponder({
                                 return;
                             }
     
-                            const ticketData = ticketDb.get(`tickets.${ticketChannel.id}`);
+                            const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
                             if(!ticketData) {
                                 interaction.reply({
                                     content: "Não foi possível encontrar os dados do ticket.",
@@ -79,6 +115,24 @@ createResponder({
                             return;
                         }
                         case "NotfUser": {
+
+                            const guildConfig = guildDb.get(`guilds.${guildId}`);
+                            if(!guildConfig) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar as configurações do servidor.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            if(guildConfig.staffRole && !member?.roles.cache.has(guildConfig.staffRole)) {
+                                interaction.reply({
+                                    content: "Você não tem permissão para assumir este ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
                             const ticketChannel = interaction.channel as TextChannel;
                             if(!ticketChannel) {
                                 interaction.reply({
@@ -95,7 +149,7 @@ createResponder({
                                 })
                             );
 
-                            const ticketData = ticketDb.get(`tickets.${ticketChannel.id}`);
+                            const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
                             if(!ticketData) {
                                 interaction.reply({
                                     content: "Não foi possível encontrar os dados do ticket.",
@@ -142,11 +196,188 @@ createResponder({
                             return;
                         }
                         case "AssumTicket": {
-                            
+
+                            const guildConfig = guildDb.get(`guilds.${guildId}`);
+                            if(!guildConfig) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar as configurações do servidor.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            if(guildConfig.staffRole && !member?.roles.cache.has(guildConfig.staffRole)) {
+                                interaction.reply({
+                                    content: "Você não tem permissão para assumir este ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            const ticketChannel = interaction.channel as TextChannel;
+                            if(!ticketChannel) {
+                                interaction.reply({
+                                    content: "Este canal não é um canal de ticket válido",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
+                            if(!ticketData) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar os dados do ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            // Marcar o ticket como assumido
+                            ticketDb.set(`tickets.${guildId}.${ticketChannel.id}`, {
+                                ...ticketData,
+                                assumedBy: user.id,
+                            });
+                            await interaction.update(menus.ticket.secondaryMenu(interaction, user.id));
+                            await ticketChannel.send(res.azoxo(`Atendimento assumido. ${user} estará à disposição para auxiliá-lo(a).`));
+
+                            return;
                         }
-                        case "createCall":
-                            // Criar chamada
-                            break;
+                        case "createCall": {
+
+                            const ticketChannel = interaction.channel as TextChannel;
+                            if(!ticketChannel) {
+                                interaction.reply({
+                                    content: "Este canal não é um canal de ticket válido",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
+                            if(!ticketData) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar os dados do ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            const guildConfig = guildDb.get(`guilds.${guildId}`);
+                            if(!guildConfig) {
+                                interaction.reply({
+                                    content: "Não foi possível encontrar as configurações do servidor.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            const creatorId = ticketData.createdBy;
+                            if(!creatorId) {
+                                interaction.reply({
+                                    content: "Não foi possível indentificar o criador do ticket.",
+                                    flags: ["Ephemeral"],
+                                });
+                                return;
+                            }
+
+                            const creator = await guild!.members.fetch(creatorId);
+                            const userName = creator ? creator.user.username : "Usuário";
+
+                            // Verificar se já existe um canal de atendimento
+                            const existingCallChannelId = ticketData.callChannelId;
+                            if (existingCallChannelId) {
+                                const existingCallChannel = await guild!.channels.fetch(existingCallChannelId).catch(() => {
+                                    // Remover o ID do canal de atendimento do banco de dados
+                                    ticketDb.set(`tickets.${guildId}.${ticketChannel.id}`, {
+                                        ...ticketData,
+                                        callChannelId: null,
+                                        callMessageId: null,
+                                    });
+                                });
+                                if (existingCallChannel) {
+                                    interaction.reply({
+                                        content: `Já existe um canal de atendimento criado: ${existingCallChannel}`,
+                                        flags: ["Ephemeral"],
+                                    });
+                                    return;
+                                }
+                            }
+
+                            // Limitar o nome do canal para 100 caracteres
+                            let channelName = `🔊 Atendimento ${userName}`;
+                            if (channelName.length > 100) {
+                                channelName = `${channelName.slice(0, 97)}...`;
+                            }
+
+                            // Criar o canal de voz
+                            const voiceChannel = await guild.channels.create({
+                                name: channelName,
+                                type: ChannelType.GuildVoice,
+                                parent: ticketChannel.parentId, // Coloca o canal na mesma categoria do ticket
+                                permissionOverwrites: [
+                                    {
+                                        id: guild.roles.everyone.id,
+                                        deny: [PermissionFlagsBits.ViewChannel]
+                                    },
+                                    {
+                                        id: creatorId,
+                                        allow: [
+                                            PermissionFlagsBits.ViewChannel,
+                                            PermissionFlagsBits.SendMessages,
+                                            PermissionFlagsBits.ReadMessageHistory,
+                                            PermissionFlagsBits.AttachFiles,
+                                            PermissionFlagsBits.EmbedLinks,
+                                            PermissionFlagsBits.Connect,
+                                            PermissionFlagsBits.Speak,
+                                        ]
+                                    },
+                                    {
+                                        id: guildConfig.staffRole!,
+                                        allow: [
+                                            PermissionFlagsBits.ViewChannel,
+                                            PermissionFlagsBits.ReadMessageHistory,
+                                            PermissionFlagsBits.AttachFiles,
+                                            PermissionFlagsBits.EmbedLinks,
+                                            PermissionFlagsBits.Connect,
+                                            PermissionFlagsBits.Speak,
+                                        ]
+                                    }
+                                ],
+                            });
+
+                            await interaction.deferUpdate();
+                            const callMessage = await ticketChannel.send(res.azoxo(`Chamada de atendimento criada ${voiceChannel}.`));
+
+                            // Salvar o ID da mensagem de atendimento no banco de dados
+                            ticketDb.set(`tickets.${guildId}.${ticketChannel.id}`, {
+                                ...ticketData,
+                                callChannelId: voiceChannel.id,
+                                callMessageId: callMessage.id
+                            });
+
+                            // Background...
+                            // Garantir que todos os usuários do ticket também tenham acesso
+                            const ticketUsers = ticketData.users || [];
+                            const allUsersIds = [creatorId, user.id, ...ticketUsers];
+
+                            // Atualizar permissões de todos os usuários de uma vez (Espero que não dê ratelimit)
+                            await voiceChannel.permissionOverwrites.set(
+                                allUsersIds.map((userId) => ({
+                                    id: userId,
+                                    allow: [
+                                        PermissionFlagsBits.ViewChannel,
+                                        PermissionFlagsBits.ReadMessageHistory,
+                                        PermissionFlagsBits.AttachFiles,
+                                        PermissionFlagsBits.EmbedLinks,
+                                        PermissionFlagsBits.Connect,
+                                        PermissionFlagsBits.Speak,
+                                    ]
+                                }))
+                            );
+
+                            await monitorVoiceChannel(voiceChannel.id, ticketChannel.id, guildId, client);
+                            return;
+                        }
                         case "moveChannel":
                             // Mover canal
                             break;
@@ -177,7 +408,7 @@ createResponder({
                                 }
 
                                 // Obter os dados do ticket
-                                const ticketData = ticketDb.get(`tickets.${ticketChannel.id}`);
+                                const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
                                 if(!ticketData) {
                                     interaction.reply({
                                         content: "Não foi possível encontrar os dados do ticket.",
@@ -202,7 +433,7 @@ createResponder({
 
                                 // Atualizar a lista de usuários do ticket
                                 const updatedUsers = [...(ticketData.users || []), newUserId];
-                                ticketDb.set(`tickets.${ticketChannel.id}`, {
+                                ticketDb.set(`tickets.${guildId}.${ticketChannel.id}`, {
                                     ...ticketData,
                                     users: updatedUsers,
                                 });
@@ -236,7 +467,7 @@ createResponder({
                                 }
 
                                 // Obter os dados do ticket
-                                const ticketData = ticketDb.get(`tickets.${ticketChannel.id}`);
+                                const ticketData = ticketDb.get(`tickets.${guildId}.${ticketChannel.id}`);
                                 if(!ticketData) {
                                     interaction.reply({
                                         content: "Não foi possível encontrar os dados do ticket.",
@@ -269,7 +500,7 @@ createResponder({
 
                                 // Atualizar a lista de usuários do ticket
                                 const updatedUsers = ticketData.users.filter(userId => userId !== userIdToRemove);
-                                ticketDb.set(`tickets.${ticketChannel.id}`, {
+                                ticketDb.set(`tickets.${guildId}.${ticketChannel.id}`, {
                                     ...ticketData,
                                     users: updatedUsers,
                                 });

@@ -2,7 +2,7 @@ import { ButtonBuilder, ButtonStyle, Interaction, type InteractionReplyOptions }
 import { createEmbed, createRow, brBuilder } from "@magicyan/discord";
 import { settings } from "#settings";
 
-export function secondaryMenu<R>(interaction: Interaction): R {
+export function secondaryMenu<R>(interaction: Interaction, assumedBy: string | null): R {
     
     const embedPanel = createEmbed({
         color: settings.colors.azoxo,
@@ -12,6 +12,19 @@ export function secondaryMenu<R>(interaction: Interaction): R {
             "- Lembrando que os __botões cinzas__ são exclusivos para a equipe de suporte!"
         )
     });
+
+    if (assumedBy) {
+        const userMention = interaction.guild!.members.cache.get(assumedBy) || assumedBy;
+        embedPanel.addFields(
+            [
+                {
+                    name: "Ticket assumido",
+                    value: `Assumido por: ${userMention}`,
+                    inline: true
+                }
+            ]
+        );
+    }
 
     const row1 = createRow(
         new ButtonBuilder({
@@ -33,6 +46,7 @@ export function secondaryMenu<R>(interaction: Interaction): R {
             customId: "ticketSec/button/AssumTicket",
             label: "Assumir Ticket",
             style: ButtonStyle.Secondary,
+            disabled: assumedBy ? true : false
         }),
         new ButtonBuilder({
             customId: "ticketSec/button/createCall",

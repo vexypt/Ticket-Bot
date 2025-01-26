@@ -76,17 +76,19 @@ createResponder({
         });
 
         // Salvar o ticket no banco de dados
-        ticketDb.set(`tickets.${ticketChannel.id}`, {
+        ticketDb.set(`tickets.${guildId}.${ticketChannel.id}`, {
             type,
             createdBy: user.id,
             users: [user.id],
             priorityLevel: 0,
             closed: false,
             assumedBy: null,
+            callChannelId: null,
+            callMessageId: null,
         });
 
         // Enviar mensagem no canal do ticket
-        await ticketChannel.send(menus.ticket.secondaryMenu(interaction));
+        await ticketChannel.send(menus.ticket.secondaryMenu(interaction, null));
 
         const row = createRow(
             new ButtonBuilder({

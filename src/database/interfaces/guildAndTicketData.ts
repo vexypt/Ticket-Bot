@@ -12,4 +12,6 @@ export interface TicketData {
     closed?: boolean;                    // Indica se o ticket foi fechado
     assumedBy?: string | null;           // ID do usuário que assumiu o ticket
     users?: string[];             // Array de IDs dos usuários no ticket
+    callChannelId?: string | null;        // ID do canal de chamada de atendimento
+    callMessageId?: string | null;        // ID da mensagem de chamada de atendimento
 }
