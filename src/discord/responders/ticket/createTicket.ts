@@ -81,7 +81,6 @@ createResponder({
             createdBy: user.id,
             users: [user.id],
             priorityLevel: 0,
-            closed: false,
             assumedBy: null,
             callChannelId: null,
             callMessageId: null,

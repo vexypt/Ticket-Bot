@@ -13,6 +13,15 @@ export function mainMenu<R>(guildId: string, client: Client): R {
     const guild = client.guilds.cache.get(guildId);
     const staffRoleId = guildConfig?.staffRole;
     const staffRole = staffRoleId ? guild?.roles.cache.get(staffRoleId) : null;
+    const logChannel = guildConfig?.LogChannelId ? guild?.channels.cache.get(guildConfig.LogChannelId) : null;
+    const supportCategoryId = guildConfig?.supportCategoryId;
+    const budgetCategoryId = guildConfig?.budgetCategoryId;
+    const supportCategory = supportCategoryId
+        ? guild?.channels.cache.get(supportCategoryId) ?? "`Não configurado`"
+        : "`Não configurado`";
+    const budgetCategory = budgetCategoryId
+        ? guild?.channels.cache.get(budgetCategoryId) ?? "`Não configurado`"
+        : "`Não configurado`";
 
     const embed = createEmbed({
         color: settings.colors.azoxo,
@@ -20,9 +29,9 @@ export function mainMenu<R>(guildId: string, client: Client): R {
             "# Configure o sistema de tickets",
             `- Cargo de staff: ${staffRole ?? "`Não configurado`"}`,
             "- Configure as categorias de tickets",
-            `-# Categoria de suporte: ${guildConfig.supportCategoryId ?? "`Não configurado`"}`,
-            `-# Categoria de orçamento: ${guildConfig.budgetCategoryId ?? "`Não configurado`"}`,
-            `- Configure o canal de logs de tickets: ${guildConfig.ticketLogChannelId ?? "`Não configurado`"}`,
+            `-# Categoria de suporte: ${supportCategory ?? "`Não configurado`"}`,
+            `-# Categoria de orçamento: ${budgetCategory ?? "`Não configurado`"}`,
+            `- Configure o canal de logs de tickets: ${logChannel ?? "`Não configurado`"}`,
         )
     });
 

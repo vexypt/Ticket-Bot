@@ -25,7 +25,7 @@ createResponder({
             }
             case "MenuConfigLogChannel": {
                 if(interaction.isButton()) {
-                    // aaaa
+                    interaction.update(await menus.config.logChannel(client, guildId));
                 }
                 return;
             }
@@ -68,6 +68,20 @@ createResponder({
 
                     // Atualiza o menu de permissões após configurar
                     await interaction.update(await menus.config.categorys(client, guildId));
+                }
+                return;
+            }
+
+            case "configLogChannel": {
+                if (interaction.isChannelSelectMenu()) {
+                    const [selected] = interaction.values;
+
+                    // Recupera os dados atuais e atualiza apenas o budgetCategoryId
+                    const currentConfig = guildDb.get(`guilds.${guildId}`) || {};
+                    guildDb.set(`guilds.${guildId}`, { ...currentConfig, LogChannelId: selected });
+
+                    // Atualiza o menu de permissões após configurar
+                    await interaction.update(await menus.config.logChannel(client, guildId));
                 }
                 return;
             }

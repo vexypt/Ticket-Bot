@@ -1,4 +1,5 @@
 import { configCategoryMenu } from "./configPermissions/categorys.js";
+import { configLogChannelMenu } from "./configPermissions/logChannel.js";
 import { mainMenu } from "./configPermissions/main.js";
 import { configPermissionsMenu } from "./configPermissions/permissions.js";
 import { Panel } from "./ticketPanel/main.js";
@@ -10,7 +11,8 @@ export const menus = {
     config: {
         main: mainMenu,
         permissions: configPermissionsMenu,
-        categorys: configCategoryMenu
+        categorys: configCategoryMenu,
+        logChannel: configLogChannelMenu
     },
     ticket: {
         MainPanel: Panel,
