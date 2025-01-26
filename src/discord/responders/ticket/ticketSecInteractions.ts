@@ -470,12 +470,6 @@ createResponder({
     
                             return;
                         }
-                        /*case "defPriority":
-                            // Definir prioridade
-                            break;
-                        case "leaveTicket":
-                            // Sair ou cancelar
-                            break;*/
                     }
                 }
             }

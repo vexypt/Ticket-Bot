@@ -67,12 +67,12 @@ export function secondaryMenu<R>(interaction: Interaction, assumedBy: string | n
             style: ButtonStyle.Secondary,
         }),
         new ButtonBuilder({
-            customId: "ticketSec/button/leaveTicket",
+            customId: "closeTicket/cancel",
             label: "Sair ou Cancelar",
             style: ButtonStyle.Danger,
         }),
         new ButtonBuilder({
-            customId: "ticketSec/button/finalizeTicket",
+            customId: "closeTicket/finish",
             label: "Finalizar",
             style: ButtonStyle.Primary,
         })

@@ -14,7 +14,8 @@ export function Panel<R>(interaction: Interaction): R {
             "Selecione uma opção de acordo com o assunto que deseja tratar com nossa equipe.",
             "",
             "**Lembre-se:** cada tipo de ticket é destinado exclusivamente ao tema escolhido, garantindo um atendimento mais eficiente."
-        )
+        ),
+        // image: { url: "" }
     });
 
     const row = createRow(
